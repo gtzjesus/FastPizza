@@ -6,7 +6,7 @@ import { Outlet, useNavigation } from 'react-router-dom';
 function AppLayout() {
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
-  console.log(navigation);
+
   return (
     <div className="layout">
       {isLoading && <Loader />}
@@ -14,7 +14,7 @@ function AppLayout() {
       <Header />
 
       <main>
-        <h1>Content</h1>
+        {/* <h1>Content</h1> */}
         <Outlet />
       </main>
 
