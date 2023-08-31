@@ -48,30 +48,25 @@ function CreateOrder() {
       <Form method="POST">
         <div>
           <label>Name</label>
-          <input type="text" name="customer" required />
+          <input className="input" type="text" name="customer" required />
         </div>
 
         <div>
           <label>Phone</label>
 
-          <input type="tel" name="phone" required />
+          <input className="input" type="tel" name="phone" required />
           {formErrors?.phone && <p>{formErrors.phone}</p>}
         </div>
 
         <div>
           <label>Address</label>
 
-          <input
-            className="w-full rounded-full border border-stone-200 px-4 py-2 text-sm transition-all duration-300 placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-yellow-400 md:px-6 md:py-3"
-            type="text"
-            name="address"
-            required
-          />
+          <input className="input" type="text" name="address" required />
         </div>
 
         <div>
           <input
-            className="h-6 w-6 accent-yellow-400 focus:outline-none focus:ring focus:ring-yellow-400 focus:ring-offset-2"
+            className="h-6 w-6 accent-yellow-400 focus:outline-none focus:ring focus:ring-yellow-400"
             type="checkbox"
             name="priority"
             id="priority"
