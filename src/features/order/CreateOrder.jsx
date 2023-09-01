@@ -16,11 +16,19 @@ const isValidPhone = (str) =>
   );
 
 function CreateOrder() {
-  const username = useSelector((state) => state.user.username);
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  const {
+    username,
+    status: addressStatus,
+    position,
+    address,
+    error: errorAddress,
+  } = useSelector((state) => state.user);
+  const isLoadingAddress = addressStatus === 'loading';
   const isSubmitting = navigation.state === 'submitting';
+
   const [withPriority, setWithPriority] = useState(false);
 
   const formErrors = useActionData();
@@ -34,15 +42,14 @@ function CreateOrder() {
 
   return (
     <div className="px-4 py-6">
-      <h2 className="mb-8 text-xl font-semibold">Ready to order? Lets go!</h2>
+      <h2 className="mb-8 text-xl font-semibold">Ready to order? Letss go!</h2>
 
-      <button onClick={() => dispatch(fetchAddress())}>get position</button>
-
+      {/* <Form method="POST" action="/order/new"> */}
       <Form method="POST">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
-          <label className="sm:basis-40">Full Name</label>
+          <label className="sm:basis-40">First Name</label>
           <input
-            className="input"
+            className="input grow"
             type="text"
             name="customer"
             defaultValue={username}
@@ -51,23 +58,54 @@ function CreateOrder() {
         </div>
 
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
-          <label className="sm:basis-40">Phone</label>
-          <input className="input" type="tel" name="phone" required />
-          {formErrors?.phone && (
-            <p className="rounde-md mt-2 bg-red-100 p-2 text-xs text-red-700">
-              {formErrors.phone}
-            </p>
-          )}
+          <label className="sm:basis-40">Phone number</label>
+          <div className="grow">
+            <input className="input w-full" type="tel" name="phone" required />
+            {formErrors?.phone && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {formErrors.phone}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
           <label className="sm:basis-40">Address</label>
-          <input className="input" type="text" name="address" required />
+          <div className="grow">
+            <input
+              className="input w-full"
+              type="text"
+              name="address"
+              disabled={isLoadingAddress}
+              defaultValue={address}
+              required
+            />
+            {addressStatus === 'error' && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {errorAddress}
+              </p>
+            )}
+          </div>
+
+          {!position.latitude && !position.longitude && (
+            <span className="absolute right-[3px] top-[3px] z-50 md:right-[5px] md:top-[5px]">
+              <Button
+                disabled={isLoadingAddress}
+                type="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(fetchAddress());
+                }}
+              >
+                Get position
+              </Button>
+            </span>
+          )}
         </div>
 
         <div className="mb-12 flex items-center gap-5">
           <input
-            className="h-6 w-6 accent-yellow-400 focus:outline-none focus:ring focus:ring-yellow-400"
+            className="h-6 w-6 accent-yellow-400 focus:outline-none focus:ring focus:ring-yellow-400 focus:ring-offset-2"
             type="checkbox"
             name="priority"
             id="priority"
@@ -75,15 +113,25 @@ function CreateOrder() {
             onChange={(e) => setWithPriority(e.target.checked)}
           />
           <label htmlFor="priority" className="font-medium">
-            Want to give your order priority?
+            Want to yo give your order priority?
           </label>
         </div>
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
-          <Button disabled={isSubmitting} type="primary">
+          <input
+            type="hidden"
+            name="position"
+            value={
+              position.longitude && position.latitude
+                ? `${position.latitude},${position.longitude}`
+                : ''
+            }
+          />
+
+          <Button disabled={isSubmitting || isLoadingAddress} type="primary">
             {isSubmitting
-              ? 'Placing Order...'
+              ? 'Placing order....'
               : `Order now from ${formatCurrency(totalPrice)}`}
           </Button>
         </div>
@@ -103,6 +151,7 @@ export async function action({ request }) {
     cart: JSON.parse(data.cart),
     priority: data.priority === 'true',
   };
+  console.log(order);
 
   // ERROR HANDLING
   const errors = {};
