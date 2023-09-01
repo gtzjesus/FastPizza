@@ -40,6 +40,9 @@ const cartSlice = createSlice({
       // MUTATE ITEM
       item.quantity--;
       item.totalPrice = item.quantity * item.unitPrice;
+
+      // DELETE CART COMPLETELY ONCE ALL PIZZAS GET DELETED
+      if (item.quantity === 0) cartSlice.caseReducers.deleteItem(state, action);
     },
     clearCart(state) {
       state.cart = [];
